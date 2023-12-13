@@ -611,8 +611,7 @@ class MultiMuJoCo(MuJoCo):
         else:
             self._timestep = self._model.opt.timestep
 
-        self._datas = [mujoco.MjData(m) for m in self._models]
-        self._data = self._datas[self._current_model_idx]
+        self.initialize_mjdata()
 
         self._n_intermediate_steps = n_intermediate_steps
         self._n_substeps = n_substeps
@@ -683,7 +682,13 @@ class MultiMuJoCo(MuJoCo):
             self._recompute_action_per_step = True
 
         # call grad-parent class, not MuJoCo
+        del self._datas
+
         super(MuJoCo, self).__init__(mdp_info)
+
+    def initialize_mjdata(self):
+        self._datas = [mujoco.MjData(m) for m in self._models]
+        self._data = self._datas[self._current_model_idx]
 
     def reset(self, obs=None):
         mujoco.mj_resetData(self._model, self._data)
